@@ -28,3 +28,7 @@ Thumbs.db
 
 # User specific
 notes.txt
+notes.png
+
+# Environment variables
+.env
