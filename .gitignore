@@ -29,6 +29,11 @@ Thumbs.db
 # User specific
 notes.txt
 notes.png
+notes2.png
+
+# AI
+.cursor/
+.gemini/
 
 # Environment variables
 .env
