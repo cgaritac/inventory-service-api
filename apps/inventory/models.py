@@ -97,6 +97,7 @@ class InventoryMovement(models.Model):
                 raise ValidationError("Insufficient stock.")
     
     def save(self, *args, **kwargs):
+        self.company = self.product.company
         self.full_clean()
 
         if not self.pk:

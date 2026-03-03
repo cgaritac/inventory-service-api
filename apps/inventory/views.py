@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Product, InventoryMovement
 from .serializers import ProductSerializer, InventoryMovementSerializer
 from apps.users.permissions import IsOwnerOrAdmin
+from apps.users.permissions import IsManagerOrAbove
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
@@ -34,6 +35,14 @@ class InventoryMovementViewSet(viewsets.ModelViewSet):
         return InventoryMovement.objects.filter(
             company=self.request.user.company
         )
+    
+    def get_permissions(self):
+        if self.action == "create":
+            permission_classes = [IsAuthenticated, IsManagerOrAbove]
+        else:
+            permission_classes = [IsAuthenticated]
+
+        return [permission() for permission in permission_classes]
     
     def perform_create(self, serializer):
         serializer.save()
