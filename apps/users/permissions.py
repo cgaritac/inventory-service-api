@@ -1,5 +1,5 @@
 from rest_framework.permissions import BasePermission
-from apps.users.models import user
+from apps.users.models import User
 
 class IsOwnerOrAdmin(BasePermission):
     def has_permission(self, request, view):
