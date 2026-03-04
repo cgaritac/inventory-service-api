@@ -18,8 +18,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Product.objects.filter(
-            company=self.request.user.company,
-            is_active=True
+            company=self.request.user.company
         )
     
     def perform_create(self, serializer):

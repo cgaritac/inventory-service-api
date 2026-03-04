@@ -3,8 +3,9 @@
 from django.db import models
 import uuid
 from apps.companies.models import Company
+from core.models import BaseModel
 
-class Product(models.Model):
+class Product(BaseModel):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     company = models.ForeignKey(
         Company, 
@@ -16,10 +17,6 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     quantity = models.IntegerField(default=0)
     minimum_stock = models.IntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=False, null=True, blank=True)
-    deleted_at = models.DateTimeField(auto_now=False, null=True, blank=True)
 
     class Meta:
         unique_together = ("company", "sku")

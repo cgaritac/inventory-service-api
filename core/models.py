@@ -20,13 +20,16 @@ class SoftDeleteManager(models.Manager):
 class BaseModel(models.Model):
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now=False, null=True, blank=True)
+    deleted_at = models.DateTimeField(auto_now=False, null=True, blank=True)
 
     objects = SoftDeleteManager()
     all_objects = models.Manager()
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
+        self.updated_at = timezone.now()
+        self.deleted_at = timezone.now()
         self.save()
 
     class Meta:
