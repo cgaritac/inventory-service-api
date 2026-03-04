@@ -24,11 +24,16 @@ class SoftDeleteManager(models.Manager):
 class BaseModel(models.Model):
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(null=True, blank=True)
     deleted_at = models.DateTimeField(null=True, blank=True)
 
     objects = SoftDeleteManager()
     all_objects = models.Manager()
+
+    def save(self, *args, **kwargs):
+        if self.pk and not kwargs.get('update_fields'):
+            self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.is_deleted = True
