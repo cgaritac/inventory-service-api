@@ -4,10 +4,17 @@ from .models import Product, InventoryMovement
 from .serializers import ProductSerializer, InventoryMovementSerializer
 from apps.users.permissions import IsOwnerOrAdmin
 from apps.users.permissions import IsManagerOrAbove
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter, OrderingFilter
 
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
     permissions_classes = [IsAuthenticated]
+
+    filterset_fields = ["minimum_stock", "is_active"]
+    search_fields = ["name", "sku"]
+    ordering_fields = ["created_at", "quantity", "name"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         return Product.objects.filter(
@@ -30,6 +37,10 @@ class ProductViewSet(viewsets.ModelViewSet):
 class InventoryMovementViewSet(viewsets.ModelViewSet):
     serializer_class = InventoryMovementSerializer
     permissions_classes = [IsAuthenticated]
+
+    filterset_fields = ["movement_type", "product"]
+    ordering_fields = ["created_at", "quantity"]
+    ordering = ["-created_at"]
 
     def get_queryset(self):
         return InventoryMovement.objects.filter(

@@ -6,6 +6,7 @@ A robust, enterprise-ready RESTful API built with **Django 5.2** and **Django RE
 
 - **Multi-tenant Architecture**: Inherently multi-tenant with data isolation at the database level using a `Company` owner pattern.
 - **Product Management**: Lifecycle tracking of products including SKUs, descriptions, and real-time stock levels.
+- **Advanced Filtering & Search**: Support for complex queries, full-text search on product attributes, and multi-field ordering.
 - **Dynamic Inventory Control**:
   - Automated stock synchronization on every movement (`IN`, `OUT`, `ADJUSTMENT`).
   - Validation rules to prevent negative stock (insufficient stock errors).
@@ -55,6 +56,17 @@ The project follows a modular architecture:
 | GET                  | `/api/movements/{id}/` | View details of a specific movement       |
 
 > **Note**: Users are automatically filtered to only see data from the `Company` associated with their profile.
+
+### Advanced Querying
+
+The API supports powerful filtering and sorting capabilities:
+
+- **Pagination**: All list results are paginated (default: 10 items per page).
+- **Filtering**:
+  - Products: Filter by `is_active` and `minimum_stock`.
+  - Movements: Filter by `movement_type` and `product`.
+- **Search**: Use the `?search=` parameter to search products by `name` or `sku`.
+- **Ordering**: Sort results using the `?ordering=` parameter (e.g., `?ordering=-created_at,quantity`).
 
 ## Installation & Setup
 
