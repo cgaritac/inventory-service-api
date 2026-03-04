@@ -1,96 +1,122 @@
 # Inventory Service API
 
-A professional RESTful API developed with Django and Django REST Framework, designed for efficient inventory management in corporate environments. The system features centralized product management, stock movements, and role-based access control for multi-tenant organizations.
+A robust, enterprise-ready RESTful API built with **Django 5.2** and **Django REST Framework**. This service is designed to manage complex inventory systems for multi-tenant organizations, featuring centralized product management, real-time stock movements, and strict data isolation.
 
 ## Key Features
 
-- Multi-tenant Architecture: Support for multiple companies with complete data isolation.
-- Product Management: Detailed tracking of names, SKUs, descriptions, and stock levels.
-- Inventory Control: Automated system to record stock entries (IN), exits (OUT), and manual adjustments with stock level validation.
-- Critical Stock Levels: Preventive monitoring of minimum stock levels to avoid shortages.
-- Security and RBAC: Robust access control based on roles (Owner, Admin, Manager, Employee).
-- Traceability: Historical log of which user performed what modification and when.
-- Scalable Identifiers: Use of UUIDs for all primary entities to enhance security and scalability.
+- **Multi-tenant Architecture**: Inherently multi-tenant with data isolation at the database level using a `Company` owner pattern.
+- **Product Management**: Lifecycle tracking of products including SKUs, descriptions, and real-time stock levels.
+- **Dynamic Inventory Control**:
+  - Automated stock synchronization on every movement (`IN`, `OUT`, `ADJUSTMENT`).
+  - Validation rules to prevent negative stock (insufficient stock errors).
+- **Advanced Security (RBAC)**:
+  - Role-based access control: `Owner`, `Admin`, `Manager`, `Employee`.
+  - Permission-based viewsets ensuring users only see data belonging to their company.
+- **JWT Authentication**: Secure stateless authentication using Simple JWT (JSON Web Tokens).
+- **Traceability**: Audit-ready tracking with `created_by`, `updated_by`, and timestamp fields for all movements.
+- **Enterprise Standards**:
+  - UUID primary keys for all entities to prevent ID enumeration.
+  - Scalable indexes for high-performance querying on SKUs and Companies.
 
 ## Tech Stack
 
-- Language: Python 3.x
-- Web Framework: Django 5.x
-- API Toolkit: Django REST Framework (DRF)
-- Database: PostgreSQL (via Psycopg3)
-- Configuration: Django Environ and Python Dotenv
-- Environment Management: Pip (requirements.txt)
+- **Framework**: [Django 5.2+](https://www.djangoproject.com/)
+- **API Toolkit**: [Django REST Framework (DRF)](https://www.django-rest-framework.org/)
+- **Authentication**: [DRF Simple JWT](https://django-rest-framework-simplejwt.readthedocs.io/)
+- **Database**: [PostgreSQL](https://www.postgresql.org/) (via `psycopg3`)
+- **Environment**: `python-dotenv` & `django-environ`
+- **Language**: Python 3.10+
 
 ## Project Structure
 
-The project is organized into modular applications following Django's best practices:
+The project follows a modular architecture:
 
-- apps.users: Custom user management and role hierarchy.
-- apps.companies: Business entity management (Tenants).
-- apps.inventory: Core logic for products and warehouse movements.
-- config: Global project setup and API configuration.
+- `apps.users`: Custom user model with organizational roles.
+- `apps.companies`: Logical grouping of data (Tenants).
+- `apps.inventory`: Core logic for `Product` and `InventoryMovement`.
+- `config`: Global settings, JWT configurations, and root URL routing.
 
-## Prerequisites
+## API Endpoints
 
-- Python 3.10 or higher.
-- PostgreSQL database.
-- Virtual environment (recommended).
+### Authentication
+
+| Method | Endpoint              | Description                          |
+| ------ | --------------------- | ------------------------------------ |
+| POST   | `/api/token/`         | Obtain Access and Refresh JWT tokens |
+| POST   | `/api/token/refresh/` | Refresh expired access tokens        |
+
+### Inventory (Requires Authentication)
+
+| Method               | Endpoint               | Description                               |
+| -------------------- | ---------------------- | ----------------------------------------- |
+| GET/POST             | `/api/products/`       | List and create products for your company |
+| GET/PUT/PATCH/DELETE | `/api/products/{id}/`  | Manage a specific product                 |
+| GET/POST             | `/api/movements/`      | List and record stock movements           |
+| GET                  | `/api/movements/{id}/` | View details of a specific movement       |
+
+> **Note**: Users are automatically filtered to only see data from the `Company` associated with their profile.
 
 ## Installation & Setup
 
-Follow these steps to get the service running locally:
+### 1. Prerequisites
 
-1. Clone the repository:
-   git clone https://github.com/your-username/inventory-service-api.git
-   cd inventory-service-api
+- Python 3.10 or higher.
+- PostgreSQL 14+ database.
+- Git.
 
-2. Create and activate a virtual environment:
-   python -m venv env
+### 2. Clone and Environment
 
-   # On Windows
+```bash
+git clone https://github.com/your-username/inventory-service-api.git
+cd inventory-service-api
 
-   .\env\Scripts\activate
+# Create Virtual Environment
+python -m venv env
+source env/bin/activate  # On Windows use: .\env\Scripts\activate
+```
 
-   # On Linux/Mac
+### 3. Install Dependencies
 
-   source env/bin/activate
+```bash
+pip install -r requirements.txt
+```
 
-3. Install required dependencies:
-   pip install -r requirements.txt
+### 4. Configure Environment
 
-4. Configure environment variables:
-   Create a .env file in the project root and define the following values:
+Create a `.env` file in the root directory:
 
-   SECRET_KEY=your_secret_key_here
-   DEBUG=True
-   ALLOWED_HOSTS=localhost,127.0.0.1
-   DATABASE_URL=postgres://user:password@localhost:5432/db_name
+```env
+SECRET_KEY=django-insecure-your-secret-key-here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_URL=postgres://user:password@localhost:5432/inventory_db
+```
 
-5. Run database migrations:
-   python manage.py migrate
+### 5. Database Initialization
 
-6. Start the development server:
-   python manage.py runserver
+```bash
+python manage.py makemigrations
+python manage.py migrate
 
-## Environment Variables
+# Create the initial administrative user
+python manage.py createsuperuser
+```
 
-The project requires the following environment variables in your .env file:
+### 6. Run Server
 
-- SECRET_KEY: Security key for the Django instance.
-- DEBUG: Boolean value (True/False) for debug mode.
-- ALLOWED_HOSTS: Comma-separated list of allowed hostnames.
-- DATABASE_URL: Standard database connection string (psql://user:pass@host:port/dbname).
+```bash
+python manage.py runserver
+```
 
-## Contributing
+## Authentication Flow
 
-If you'd like to contribute:
-
-1. Fork the repository.
-2. Create a new feature branch (git checkout -b feature/awesome-feature).
-3. Commit your changes (git commit -m 'Add awesome feature').
-4. Push to the branch (git push origin feature/awesome-feature).
-5. Open a Pull Request.
+1. **Login**: Send a `POST` request to `/api/token/` with `username` and `password`.
+2. **Access Data**: Include the received access token in the `Authorization` header for all protected requests:
+   ```http
+   Authorization: Bearer <your_access_token>
+   ```
+3. **Refresh**: Use the refresh token at `/api/token/refresh/` once the access token expires (default: 30 minutes).
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
