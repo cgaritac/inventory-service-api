@@ -120,6 +120,36 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## 7. Default Credentials (Development)
+
+During development, you can use your superuser credentials to access the admin panel and the API. If you haven't created one, run `python manage.py createsuperuser`.
+
+- **Username**: `admin`
+- **Password**: `[YOUR_PASSWORD]`
+- **Email**: `[YOUR_EMAIL]`
+
+---
+
+## Admin Panel & Roles
+
+The project includes a customized Django Admin interface to manage users, companies, and inventory.
+
+### Accessing the Admin
+
+1. Go to [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+2. Log in with the superuser credentials.
+
+### User Roles
+
+The system implements Role-Based Access Control (RBAC). You can change a user's role in the **Users** section under **Custom Fields**:
+
+- **Owner**: Full access to company data.
+- **Admin**: Administrative access.
+- **Manager**: Can view data and record movements.
+- **Employee**: Basic access.
+
+> **Note**: For the API views, permissions are strictly enforced based on these roles (e.g., only `Manager` or above can create inventory movements).
+
 ## Authentication Flow
 
 1. **Login**: Send a `POST` request to `/api/token/` with `username` and `password`.
